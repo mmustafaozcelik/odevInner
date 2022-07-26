@@ -26,14 +26,14 @@ public class CustomerDao implements IDaoConnection<CustomerDto> {
 			preparedStatement.setLong(4, customerDto.getBankDto().getId());
 			int rowEffected = preparedStatement.executeUpdate();
 			if (rowEffected > 0) {
-				log.info(CustomerDto.class + " Ekleme Baþarýlý");
+				log.info(CustomerDto.class + " Ekleme Baï¿½arï¿½lï¿½");
 				connection.commit(); // transaction
 			} else {
-				log.error(CustomerDto.class + " !!!! Ekleme Baþarýsýz");
+				log.error(CustomerDto.class + " !!!! Ekleme Baï¿½arï¿½sï¿½z");
 				connection.rollback(); // transaction
 			}
 		} catch (Exception e) {
-			log.error(CustomerDto.class + " !!!! Ekleme sýrasýnda hata meydana geldi");
+			log.error(CustomerDto.class + " !!!! Ekleme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 	}
@@ -51,14 +51,14 @@ public class CustomerDao implements IDaoConnection<CustomerDto> {
 			preparedStatement.setLong(4, customerDto.getId());
 			int rowEffected = preparedStatement.executeUpdate();
 			if (rowEffected > 0) {
-				log.info(CustomerDto.class + " Güncelleme Baþarýlý");
+				log.info(CustomerDto.class + " Gï¿½ncelleme Baï¿½arï¿½lï¿½");
 				connection.commit(); // transaction
 			} else {
-				log.error(CustomerDto.class + " !!!! Güncelleme Baþarýsýz");
+				log.error(CustomerDto.class + " !!!! Gï¿½ncelleme Baï¿½arï¿½sï¿½z");
 				connection.rollback(); // transaction
 			}
 		} catch (Exception e) {
-			log.error(CustomerDto.class + " !!!! Güncelleme sýrasýnda hata meydana geldi");
+			log.error(CustomerDto.class + " !!!! Gï¿½ncelleme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 	}
@@ -73,20 +73,20 @@ public class CustomerDao implements IDaoConnection<CustomerDto> {
 			preparedStatement.setLong(1, customerDto.getId());
 			int rowEffected = preparedStatement.executeUpdate();
 			if (rowEffected > 0) {
-				log.info(CustomerDto.class + " Silme Baþarýlý");
+				log.info(CustomerDto.class + " Silme Baï¿½arï¿½lï¿½");
 				connection.commit(); // transaction
 			} else {
-				log.error(CustomerDto.class + " !!!! Silme Baþarýsýz");
+				log.error(CustomerDto.class + " !!!! Silme Baï¿½arï¿½sï¿½z");
 				connection.rollback(); // transaction
 			}
 		} catch (Exception e) {
-			log.error(CustomerDto.class + " !!!! Silme sýrasýnda hata meydana geldi");
+			log.error(CustomerDto.class + " !!!! Silme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 		
 	}
 	
-	// LÝST
+	// Lï¿½ST
 	// SELECT
 	@Override
 	public ArrayList<CustomerDto> list() {
@@ -109,7 +109,40 @@ public class CustomerDao implements IDaoConnection<CustomerDto> {
 				list.add(bankDto);
 			}
 		} catch (Exception e) {
-			log.error(CustomerDto.class + " !!!! Silme sýrasýnda hata meydana geldi");
+			log.error(CustomerDto.class + " !!!! Silme sï¿½rasï¿½nda hata meydana geldi");
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	public ArrayList<CustomerDto> Ä±nnerJoinMethod() {
+		ArrayList<CustomerDto> list = new ArrayList<CustomerDto>();
+		CustomerDto customerDto;
+		BankDto bankDto = new BankDto();
+		
+		try (Connection connection = getInterfaceConnection()) {
+			String sql = "select * from customer as c1 inner join bank as b1 on c1.bank_id = b1.bank_id where b1.bank_id=?;";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setLong(1, 3);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			// resultSet.getString("branch_name")
+			
+			while (resultSet.next()) {
+				customerDto = new CustomerDto();
+				customerDto.setId(resultSet.getLong("customer_id"));
+				customerDto.setCustomerName(resultSet.getString("customer_name"));
+				customerDto.setCustomerSurName(resultSet.getString("customer_surname"));
+				customerDto.setCustomerIdentity(resultSet.getString("customer_identity"));
+				bankDto.setId(resultSet.getLong("bank_id"));
+				bankDto.setBankName(resultSet.getString("bank_name"));
+				bankDto.setBranchName(resultSet.getString("branch_name"));
+				customerDto.setBankDto(bankDto);
+				customerDto.setCreatedDate(resultSet.getDate("created_date"));
+				list.add(customerDto);
+			}
+			
+		} catch (Exception e) {
+			log.error(CustomerDto.class + " !!!! Silme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 		return list;

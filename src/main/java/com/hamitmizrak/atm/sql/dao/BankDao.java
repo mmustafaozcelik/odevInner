@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import com.hamitmizrak.atm.sql.dto.BankDto;
+import com.hamitmizrak.atm.sql.dto.CustomerDto;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -23,14 +24,14 @@ public class BankDao implements IDaoConnection<BankDto> {
 			preparedStatement.setString(2, banDto.getBranchName());
 			int rowEffected = preparedStatement.executeUpdate();
 			if (rowEffected > 0) {
-				log.info(BankDto.class + " Ekleme Baþarýlý");
+				log.info(BankDto.class + " Ekleme Baï¿½arï¿½lï¿½");
 				connection.commit(); // transaction
 			} else {
-				log.error(BankDto.class + " !!!! Ekleme Baþarýsýz");
+				log.error(BankDto.class + " !!!! Ekleme Baï¿½arï¿½sï¿½z");
 				connection.rollback(); // transaction
 			}
 		} catch (Exception e) {
-			log.error(BankDto.class + " !!!! Ekleme sýrasýnda hata meydana geldi");
+			log.error(BankDto.class + " !!!! Ekleme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 	}
@@ -47,14 +48,14 @@ public class BankDao implements IDaoConnection<BankDto> {
 			preparedStatement.setLong(3, banDto.getId());
 			int rowEffected = preparedStatement.executeUpdate();
 			if (rowEffected > 0) {
-				log.info(BankDto.class + " Güncelleme Baþarýlý");
+				log.info(BankDto.class + " Gï¿½ncelleme Baï¿½arï¿½lï¿½");
 				connection.commit(); // transaction
 			} else {
-				log.error(BankDto.class + " !!!! Güncelleme Baþarýsýz");
+				log.error(BankDto.class + " !!!! Gï¿½ncelleme Baï¿½arï¿½sï¿½z");
 				connection.rollback(); // transaction
 			}
 		} catch (Exception e) {
-			log.error(BankDto.class + " !!!! Güncelleme sýrasýnda hata meydana geldi");
+			log.error(BankDto.class + " !!!! Gï¿½ncelleme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 	}
@@ -69,20 +70,20 @@ public class BankDao implements IDaoConnection<BankDto> {
 			preparedStatement.setLong(1, banDto.getId());
 			int rowEffected = preparedStatement.executeUpdate();
 			if (rowEffected > 0) {
-				log.info(BankDto.class + " Silme Baþarýlý");
+				log.info(BankDto.class + " Silme Baï¿½arï¿½lï¿½");
 				connection.commit(); // transaction
 			} else {
-				log.error(BankDto.class + " !!!! Silme Baþarýsýz");
+				log.error(BankDto.class + " !!!! Silme Baï¿½arï¿½sï¿½z");
 				connection.rollback(); // transaction
 			}
 		} catch (Exception e) {
-			log.error(BankDto.class + " !!!! Silme sýrasýnda hata meydana geldi");
+			log.error(BankDto.class + " !!!! Silme sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 		
 	}
 	
-	// LÝST
+	// Lï¿½ST
 	// SELECT
 	@Override
 	public ArrayList<BankDto> list() {
@@ -103,7 +104,57 @@ public class BankDao implements IDaoConnection<BankDto> {
 				list.add(bankDto);
 			}
 		} catch (Exception e) {
-			log.error(BankDto.class + " !!!! Silme sýrasýnda hata meydana geldi");
+			log.error(BankDto.class + " !!!! Silme sï¿½rasï¿½nda hata meydana geldi");
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	public ArrayList<BankDto> innerJo() {
+		BankDao bankDao = new BankDao();
+		ArrayList<BankDto> list = new ArrayList<BankDto>();
+		BankDto bankDto;
+		try (Connection connection = getInterfaceConnection()) {
+			String sql = "select * from bank b1 inner join customer as c1 on c1.bank_id = b1.bank_id where b1.bank_id=3;";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			while (resultSet.next()) {
+				bankDto = new BankDto();
+				bankDto.setId(resultSet.getLong("bank_id"));
+				bankDto.setBankName(resultSet.getString("bank_name"));
+				bankDto.setBranchName(resultSet.getString("branch_name"));
+				bankDto.setCreatedDate(resultSet.getDate("created_date"));
+				bankDto.setCustomerList(bankDao.getCustomerList());
+				list.add(bankDto);
+			}
+		} catch (Exception e) {
+			log.error(BankDto.class + " !!!! select sï¿½rasï¿½nda hata meydana geldi");
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	public ArrayList<CustomerDto> getCustomerList() {
+		ArrayList<CustomerDto> list = new ArrayList<CustomerDto>();
+		CustomerDto customerDto;
+		
+		try (Connection connection = getInterfaceConnection()) {
+			String sql = "select * from customer where bank_id=3;";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			while (resultSet.next()) {
+				customerDto = new CustomerDto();
+				customerDto.setId(resultSet.getLong("customer_id"));
+				customerDto.setCustomerName(resultSet.getString("customer_name"));
+				customerDto.setCustomerSurName(resultSet.getString("customer_surname"));
+				customerDto.setCustomerIdentity(resultSet.getString("customer_identity"));
+				customerDto.setCreatedDate(resultSet.getDate("created_date"));
+				list.add(customerDto);
+			}
+		} catch (Exception e) {
+			log.error(BankDto.class + " !!!! select sï¿½rasï¿½nda hata meydana geldi");
 			e.printStackTrace();
 		}
 		return list;

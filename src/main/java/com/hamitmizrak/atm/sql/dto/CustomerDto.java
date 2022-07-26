@@ -13,18 +13,19 @@ public class CustomerDto extends BaseEntity {
 	private String customerIdentity;
 	
 	// composition
-	BankDto bankDto;
+	private BankDto bankDto;
 	
 	// parametresiz constructor
 	public CustomerDto() {
 	}
 	
 	// parametreli constructor
-	public CustomerDto(String customerName, String customerSurName, String customerIdentity) {
+	public CustomerDto(String customerName, String customerSurName, String customerIdentity, BankDto bankDto) {
 		super();
 		this.customerName = customerName;
 		this.customerSurName = customerSurName;
 		this.customerIdentity = customerIdentity;
+		this.bankDto = bankDto;
 	}
 	
 	// parametreli constructor
